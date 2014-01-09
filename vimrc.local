@@ -1,0 +1,283 @@
+" vim: set ts=2 sw=2 tw=80 et :
+"
+"
+"
+" change the leader from \ to , NOTE: I added a single quote before the '","
+"let mapleader = '","
+"
+"
+"
+" =============================== Vim ENV =====================================
+set term=$TERM
+if &term =~? '256color'
+  set t_Co=256
+  set t_ut=
+endif
+"
+" Allow color schemes to do bright colors without forcing bold.
+if &t_Co == 8 && $TERM !~# '^linux'
+  set t_Co=16
+endif
+"
+colo jellybeans
+"
+set nocompatible
+"set visualbell
+set shell=/usr/bin/bash
+"
+if !empty(&viminfo)
+  set viminfo^=!
+endif
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================== Vim Conifg ===================================
+" Enable modelines with Securemodelines plugin
+"set modelines=0
+set switchbuf=useopen
+set noruler " show the line number instead
+set number
+" seams default is norelativenumber
+"set norelativenumber
+"set hidden
+"
+" time in milliseconds for redrawing the display
+" applies to searching for patterns and match
+" suposidly only avable when compiled with undocumented option
+" +reltime
+" However, it stops screen from locking up if I over scroll
+set redrawtime=2000
+set backspace=indent,eol,start
+set complete-=i
+set nrformats-=octal
+" Timeout - time you have to complete a <leader>BLA
+set ttimeout
+set ttimeoutlen=50
+set display+=lastline,uhex
+set autoread
+"
+" Make Sure that Vim returns to the same line when we reopen a file
+"
+augroup line_return
+  au!
+  au BufReadPost *
+  \ if line("'\"") > 0 && line("'\"") <= line("$") |
+    \ execute 'normal! g`"zvzz' |
+  \ endif
+augroup END
+"
+" From vim-sensible Prob dont need or at lest dont need them to be if else
+if has('autocmd')
+  filetype plugin indent on
+endi
+"
+if has('syntax') && !exists('g:syntax_on')
+  syntax enable
+endif
+"
+" I dont really know what this dose check up on it
+if &listchars ==# 'eol:$'
+  set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
+  if !has('win32') && (&termencoding ==# 'utf-8' || &encoding ==# 'utf-8')
+    let &listchars = "tab:\u21e5 ,trail:\u2423,extends:\u21c9,precedes:\u21c7,nbsp:\u00b7"
+  endif
+endif
+"
+" Load matchit.vim, but only if the user hasn't installed a newer version.
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+  runtime! macros/matchit.vim
+endif
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================== Scrolling ====================================
+"
+" + + + NOTES + + +
+" :help scroll
+" -When the cursor is on the last line of the buffer nothing happens and a beep
+" -is produced.
+" There is your problem with gnu-screen flashing white when over-scrolling
+" + + + + + + + + +
+"
+set ttyfast
+"set nottyfast
+set lazyredraw
+" if set to a neg number it is interupited as a percent of visible # of lines
+"set scrolljump=-5
+set scrolloff=8
+set sidescrolloff=5
+" Maximum number of lines to scroll before vim uses redrawing instead
+"set ttyscroll=10
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================= Show Settings =================================
+set laststatus=2
+set showtabline=1
+" show matching bracket
+set showmatch
+set showcmd
+set showbreak=">> "
+" vim-airline will show the mode
+set noshowmode
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================= Indentation ===================================
+set autoindent
+set smartindent
+set smarttab
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+set expandtab
+set shiftround
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" =============================== Line Wrap ===================================
+set wrap
+"set nowrap
+set linebreak 
+set textwidth=80
+set formatoptions=qrn1
+set colorcolumn=80
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================== Swap Files ===================================
+set dir=~/.vim/tmp/
+set history=3000
+set updatecount=250
+set maxmem=49152
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================ Persistent Undo ================================
+set undodir=~/.vim/backups/
+set undolevels=200
+set undofile
+" Make Vim able to edit crontab files again
+set backupskip=/tmp/*,/private/tmp/*"
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================= Window Config =================================
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================= Buffer Config =================================
+set wildmenu
+"set wildignore=*.o,*~,.lo,*.exe,*.bak,*.pyc
+set wildignore+=*.o,*~,.lo,*.exe,*.bak
+set wildmode=list:longest
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ============================ Tabpage Config =================================
+set tabpagemax=50
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ================================ Searching ==================================
+set ignorecase
+set smartcase
+set gdefault
+" hi-lighiting
+" Removed senseble keybinding, added <leader>c below to clear highlight
+set hlsearch
+" incremental search - Start jumping around as you type. No fun at all
+"set incsearch
+"nnoremap <leader><space> :noh<cr>
+"nnoremap <tab> %
+"vnoremap <tab> %
+"nnoremap / /\v
+"vnoremap / /\v
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" =============================== Folding =====================================
+set nofoldenable
+set foldmethod=indent
+set foldnestmax=3
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" -------------------------- Function Key Maps --------------------------------
+nnoremap <F12> :redo<CR>
+inoremap <F12> <Esc> :redo<CR>
+nnoremap <F11> :update<CR>
+inoremap <F11> <Esc> :update<CR>
+nnoremap <F10> :undo<CR>
+inoremap <F10> <Esc> :undo<CR>
+nnoremap <F9> :NERDTreeTabsToggle<CR>
+inoremap <F9> <Esc> :NERDTreeTabsToggle<CR>
+nnoremap <F8> :confirm quit<CR>
+inoremap <F8> <Esc> :confirm quit <CR>
+set pastetoggle=<F7>
+
+
+" .............................................................................
+
+" -------------------------- Movement Key Maps --------------------------------
+"
+" This seemed to fix vim-airline
+" Now the tab-line really shows a list of tabs not just one at a time
+"
+" Move between window panes with Shift+{h,j,k,l}
+nmap <silent> <S-h> :wincmd h<CR>
+nmap <silent> <S-j> :wincmd j<CR>
+nmap <silent> <S-k> :wincmd k<CR>
+nmap <silent> <S-l> :wincmd l<CR>
+" previous - next Buffer
+nmap <silent> <S-y> :tabp<CR>
+nmap <silent> <S-o> :tabn<CR> 
+nmap <silent> <S-u> :bprevious<CR>
+nmap <silent> <S-i> :bnext<CR>
+" Resize Window
+"
+nmap <silent> <S-a> :vertical resize -5<cr>
+nmap <silent> <S-s> :resize +5<cr>
+nmap <silent> <S-d> :resize -5<cr>
+nmap <silent> <S-f> :vertical resize +5<cr>
+"
+" See in screen-bindings HOLY GRAIL
+" - - - Global - ^[u = PgUp  ^[i = PgDn - - -
+"
+" Append Time Stamp and Update file
+function! TimeStampUpdate()
+  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
+    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
+  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
+  call append(line("$"), l:modeline)
+endfunction
+" .............................................................................
+
+" ------------------------ File Processing Key Maps ---------------------------
+"
+" Save - Ask to save Quit
+nmap <leader>w :update<CR> 
+nmap <leader>q :confirm quit <CR>
+nmap <leader>u :undo<CR>
+nmap <leader>r :redo<CR>
+"
+nnoremap <leader>c :nohlsearch<CR>
+"
+" Toggle auto indent on off, Togle off when you want to past from outside vim
+"set pastetoggle=<F70>
+"
+" Toggle Code Folding
+nnoremap <leader>f :call FoldColumnToggle()<cr>
+"
+function! FoldColumnToggle()
+  if &foldenable 
+    setlocal nofoldenable 
+  else
+    setlocal foldenable 
+  endif
+endfunction
+" 
+" Remove remove trailling spaces and tabs
+nnoremap <leader>W :%s/\s\+$//<cr>:let @/=''<CR>
+"
+" Append modeline after last line in buffer.
+function! AppendModeline()
+  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
+    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
+  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
+  call append(line("$"), l:modeline)
+endfunction
+nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
+" .............................................................................
+
+" ------------------- Vim Behavior Functions and Maps -------------------------
+"
+" .............................................................................
+
