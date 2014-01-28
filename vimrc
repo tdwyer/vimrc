@@ -16,6 +16,28 @@ runtime! archlinux.vim
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"
+"                         For Debian Systems
+"runtime! debian.vim
+"
+" Also Debian has a junk vim installed and all kinds of wacked out soft links.
+" A work around is to run these commands.
+"
+" apt-get remove \
+" vim vim-athena vim-common vim-dbg vim-doc vim-gnome vim-gtk \
+" vim-gui-common vim-lesstif vim-nox vim-runtime vim-tiny vim-addon-manager \
+" vim-latexsuite vim-rails vim-scripts vim-syntax-gtk vim-vimerl \
+" vim-vimerl-syntax vimhelp-de vim-vimoutliner
+"
+" apt-get install mlocate
+" sudo updatedb
+" for junk in $(locate vim) ; do sudo rm -rf ${junk} ; done
+"
+" apt-get install vim-nox
+"
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 source /usr/src/vim/bundle/vim-pathogen/autoload/pathogen.vim 
 "
 execute pathogen#infect('bundle/{}', '/usr/src/vim/bundle/{}')
@@ -52,8 +74,7 @@ endif
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "
-" index the help pages for the plugins
-" bad idea really
+" index the help pages for the plugins, bad idea really
 "autocmd VimEnter Helptags
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

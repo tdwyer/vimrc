@@ -34,6 +34,4 @@ set lines=44 columns=120
 "set guifont=Cousine.ttf\ 10
 "
 "But this is the best
-"set guifont=PT\ Mono\ 9 
-"Maybe this looks better...
-set guifont=Monospace
+set guifont=PT\ Mono\ 9 

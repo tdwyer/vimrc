@@ -1,27 +1,11 @@
 " vim: set ts=2 sw=2 tw=80 et :
-"
-"
-"
-" change the leader from \ to , NOTE: I added a single quote before the '","
-"let mapleader = '","
-"
-"
-"
+
 " =============================== Vim ENV =====================================
-set term=$TERM
-if &term =~? '256color'
-  set t_Co=256
-  set t_ut=
-endif
-"
-" Allow color schemes to do bright colors without forcing bold.
-if &t_Co == 8 && $TERM !~# '^linux'
-  set t_Co=16
-endif
 "
 colo jellybeans
 "
 set nocompatible
+" Visual Bell will make screen flash white when you git end of line
 "set visualbell
 set shell=/usr/bin/bash
 "
@@ -33,19 +17,19 @@ endif
 " ============================== Vim Conifg ===================================
 " Enable modelines with Securemodelines plugin
 "set modelines=0
+"set hidden
 set switchbuf=useopen
 set noruler " show the line number instead
 set number
-" seams default is norelativenumber
-"set norelativenumber
-"set hidden
+"set relativenumber
 "
-" time in milliseconds for redrawing the display
+" Time in milliseconds for redrawing the display
 " applies to searching for patterns and match
 " suposidly only avable when compiled with undocumented option
 " +reltime
-" However, it stops screen from locking up if I over scroll
+" It stops screen from locking up if I over scroll
 set redrawtime=2000
+"
 set backspace=indent,eol,start
 set complete-=i
 set nrformats-=octal
@@ -54,6 +38,21 @@ set ttimeout
 set ttimeoutlen=50
 set display+=lastline,uhex
 set autoread
+" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+" ------------------- Vim Behavior and config Functions -----------------------
+" If we have a 256color Term then use 256colors and disable BCE
+"
+set term=$TERM
+if &term =~? '256color'
+  set t_Co=256
+  set t_ut=
+endif
+"
+" If we don't have a 256color term at least enable 16colors
+if &t_Co == 8 && $TERM !~# '^linux'
+  set t_Co=16
+endif
 "
 " Make Sure that Vim returns to the same line when we reopen a file
 "
@@ -74,7 +73,6 @@ if has('syntax') && !exists('g:syntax_on')
   syntax enable
 endif
 "
-" I dont really know what this dose check up on it
 if &listchars ==# 'eol:$'
   set listchars=tab:>\ ,trail:-,extends:>,precedes:<,nbsp:+
   if !has('win32') && (&termencoding ==# 'utf-8' || &encoding ==# 'utf-8')
@@ -82,19 +80,18 @@ if &listchars ==# 'eol:$'
   endif
 endif
 "
-" Load matchit.vim, but only if the user hasn't installed a newer version.
 if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
-" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+" .............................................................................
 
 " ============================== Scrolling ====================================
 "
 " + + + NOTES + + +
 " :help scroll
-" -When the cursor is on the last line of the buffer nothing happens and a beep
-" -is produced.
-" There is your problem with gnu-screen flashing white when over-scrolling
+" -When the cursor is on the last line of the buffer nothing happens
+"  and a beep is produced.
+" That is reason gnu-screen will white when over-scrolling or line end is hit
 " + + + + + + + + +
 "
 set ttyfast
@@ -172,16 +169,10 @@ set tabpagemax=50
 set ignorecase
 set smartcase
 set gdefault
-" hi-lighiting
-" Removed senseble keybinding, added <leader>c below to clear highlight
+" Clean hi-lighting with the <leader>c Key Map in - File Processing Key Maps -
 set hlsearch
 " incremental search - Start jumping around as you type. No fun at all
 "set incsearch
-"nnoremap <leader><space> :noh<cr>
-"nnoremap <tab> %
-"vnoremap <tab> %
-"nnoremap / /\v
-"vnoremap / /\v
 " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 " =============================== Folding =====================================
@@ -192,24 +183,36 @@ set foldnestmax=3
 
 " -------------------------- Function Key Maps --------------------------------
 nnoremap <F12> :redo<CR>
-inoremap <F12> <Esc> :redo<CR>
+inoremap <F12> <Esc><Esc> :redo<CR>
 nnoremap <F11> :update<CR>
-inoremap <F11> <Esc> :update<CR>
+inoremap <F11> <Esc><Esc> :update<CR>
 nnoremap <F10> :undo<CR>
-inoremap <F10> <Esc> :undo<CR>
+inoremap <F10> <Esc><Esc> :undo<CR>
 nnoremap <F9> :NERDTreeTabsToggle<CR>
-inoremap <F9> <Esc> :NERDTreeTabsToggle<CR>
+inoremap <F9> <Esc><Esc> :NERDTreeTabsToggle<CR>
 nnoremap <F8> :confirm quit<CR>
-inoremap <F8> <Esc> :confirm quit <CR>
+inoremap <F8> <Esc><Esc> :confirm quit <CR>
 set pastetoggle=<F7>
-
-
 " .............................................................................
 
 " -------------------------- Movement Key Maps --------------------------------
 "
-" This seemed to fix vim-airline
-" Now the tab-line really shows a list of tabs not just one at a time
+"  - + - + - + - + - + - + - + - +
+"
+" Set GNU-screen's screen-bindings :
+"
+"  - Global
+"  - Applicatoin Independent
+"  - Terminal Independent
+"  - Vim Mode Independent
+"
+"      Alt-y Is a Home Key
+"      Alt-u Is a PgUp Key
+"      Alt-i Is a PgDown Key
+"      Alt-o Is a  End key
+"      Alt-h,j,k,l Are Cursor Left,Up,Down,Right
+"
+"  - + - + - + - + - + - + - + - +
 "
 " Move between window panes with Shift+{h,j,k,l}
 nmap <silent> <S-h> :wincmd h<CR>
@@ -222,22 +225,10 @@ nmap <silent> <S-o> :tabn<CR>
 nmap <silent> <S-u> :bprevious<CR>
 nmap <silent> <S-i> :bnext<CR>
 " Resize Window
-"
 nmap <silent> <S-a> :vertical resize -5<cr>
 nmap <silent> <S-s> :resize +5<cr>
 nmap <silent> <S-d> :resize -5<cr>
 nmap <silent> <S-f> :vertical resize +5<cr>
-"
-" See in screen-bindings HOLY GRAIL
-" - - - Global - ^[u = PgUp  ^[i = PgDn - - -
-"
-" Append Time Stamp and Update file
-function! TimeStampUpdate()
-  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
-    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
-  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
-  call append(line("$"), l:modeline)
-endfunction
 " .............................................................................
 
 " ------------------------ File Processing Key Maps ---------------------------
@@ -249,9 +240,6 @@ nmap <leader>u :undo<CR>
 nmap <leader>r :redo<CR>
 "
 nnoremap <leader>c :nohlsearch<CR>
-"
-" Toggle auto indent on off, Togle off when you want to past from outside vim
-"set pastetoggle=<F70>
 "
 " Toggle Code Folding
 nnoremap <leader>f :call FoldColumnToggle()<cr>
@@ -275,9 +263,13 @@ function! AppendModeline()
   call append(line("$"), l:modeline)
 endfunction
 nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
-" .............................................................................
-
-" ------------------- Vim Behavior Functions and Maps -------------------------
 "
+" Append Time Stamp and Update file
+function! TimeStampUpdate()
+  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
+    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
+  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
+  call append(line("$"), l:modeline)
+endfunction
 " .............................................................................
 
