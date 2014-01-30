@@ -4,6 +4,18 @@
 "
 colo jellybeans
 "
+" If we have a 256color Term then use 256colors and disable BCE
+set term=$TERM
+if &term =~? '256color'
+  set t_Co=256
+  set t_ut=
+endif
+"
+" If we don't have a 256color term at least enable 16colors
+if &t_Co == 8 && $TERM !~# '^linux'
+  set t_Co=16
+endif
+"
 set nocompatible
 " Visual Bell will make screen flash white when you git end of line
 "set visualbell
@@ -33,29 +45,16 @@ set redrawtime=2000
 set backspace=indent,eol,start
 set complete-=i
 set nrformats-=octal
-" Timeout - time you have to complete a <leader>BLA
+" Timeout - time you have to complete a <silent> <Leader>BLA
 set ttimeout
 set ttimeoutlen=50
 set display+=lastline,uhex
 set autoread
 " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-" ------------------- Vim Behavior and config Functions -----------------------
-" If we have a 256color Term then use 256colors and disable BCE
-"
-set term=$TERM
-if &term =~? '256color'
-  set t_Co=256
-  set t_ut=
-endif
-"
-" If we don't have a 256color term at least enable 16colors
-if &t_Co == 8 && $TERM !~# '^linux'
-  set t_Co=16
-endif
+" +++++++++++++++++++++++++ Vim Config Statements +++++++++++++++++++++++++++++
 "
 " Make Sure that Vim returns to the same line when we reopen a file
-"
 augroup line_return
   au!
   au BufReadPost *
@@ -83,26 +82,92 @@ endif
 if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
   runtime! macros/matchit.vim
 endif
-" .............................................................................
+" ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+" ++++++++++++++++++++++++++++ Helper Functions +++++++++++++++++++++++++++++++
+"
+" Set Mode Independent Scroll variables
+function! SetScrollCommon()
+    set ttyfast
+    "set nottyfast
+    set lazyredraw
+    set scrolloff=8
+    set sidescrolloff=4
+endfunction
+"
+" Switch to Scrolling mode
+function! ScrollModeToggle()
+  if g:scrollmode > 0
+    set scrolljump=-12
+    set ttyscroll=4
+    let g:scrollmode = 0
+  else
+    set scrolljump=1
+    set ttyscroll=8
+    let g:scrollmode = 1
+  endif
+endfunction
+"
+" Toggle Spell check
+function! SpellCheckToggle()
+  if &spell
+    setlocal nospell
+  else
+    setlocal spell
+  endif
+endfunction
+"
+" Toggle Code Folding
+function! FoldColumnToggle()
+  if &foldenable
+    setlocal nofoldenable
+  else
+    setlocal foldenable
+  endif
+endfunction
+"
+" Append modeline after last line in buffer.
+function! AppendModeline()
+  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
+    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
+  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
+  call append(line("$"), l:modeline)
+endfunction
+"
+" Append Time Stamp and Update file
+function! TimeStampUpdate()
+  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
+    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
+  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
+  call append(line("$"), l:modeline)
+endfunction
+" ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
 " ============================== Scrolling ====================================
 "
-" + + + NOTES + + +
+"  - + - + - + - + - NOTE - + - + - + - + -
+"
 " :help scroll
 " -When the cursor is on the last line of the buffer nothing happens
 "  and a beep is produced.
 " That is reason gnu-screen will white when over-scrolling or line end is hit
-" + + + + + + + + +
 "
-set ttyfast
-"set nottyfast
-set lazyredraw
-" if set to a neg number it is interupited as a percent of visible # of lines
-"set scrolljump=-5
-set scrolloff=8
-set sidescrolloff=5
+" + + + + + + + + + + + + + + + + + + + + +
+"
+" ttyfast
+" Send more chars to the term instead of using lineupdate
+"
+" scrolljump=
+" if set to a neg number it is interrupted as a percent of visible # of lines
+"
+" ttyscroll=
 " Maximum number of lines to scroll before vim uses redrawing instead
-"set ttyscroll=10
+"
+call SetScrollCommon()
+" Set Default Scroll Mode 1 for JumpDraw 0 for Scroll
+let g:scrollmode = 1
+call ScrollModeToggle()
+"
 " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 " ============================= Show Settings =================================
@@ -130,7 +195,7 @@ set shiftround
 " =============================== Line Wrap ===================================
 set wrap
 "set nowrap
-set linebreak 
+set linebreak
 set textwidth=80
 set formatoptions=qrn1
 set colorcolumn=80
@@ -151,10 +216,7 @@ set undofile
 set backupskip=/tmp/*,/private/tmp/*"
 " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-" ============================= Window Config =================================
-" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-" ============================= Buffer Config =================================
+" ============================= Window and Buffer Config ======================
 set wildmenu
 "set wildignore=*.o,*~,.lo,*.exe,*.bak,*.pyc
 set wildignore+=*.o,*~,.lo,*.exe,*.bak
@@ -169,7 +231,7 @@ set tabpagemax=50
 set ignorecase
 set smartcase
 set gdefault
-" Clean hi-lighting with the <leader>c Key Map in - File Processing Key Maps -
+" Clean hi-lighting with the <silent> <Leader>c Key Map in - File Processing Key Maps -
 set hlsearch
 " incremental search - Start jumping around as you type. No fun at all
 "set incsearch
@@ -183,21 +245,21 @@ set foldnestmax=3
 
 " -------------------------- Function Key Maps --------------------------------
 nnoremap <F12> :redo<CR>
-inoremap <F12> <Esc><Esc> :redo<CR>
+inoremap <F12> <Esc> <Esc> :redo<CR>
 nnoremap <F11> :update<CR>
-inoremap <F11> <Esc><Esc> :update<CR>
+inoremap <F11> <Esc> <Esc> :update<CR>
 nnoremap <F10> :undo<CR>
-inoremap <F10> <Esc><Esc> :undo<CR>
+inoremap <F10> <Esc> <Esc> :undo<CR>
 nnoremap <F9> :NERDTreeTabsToggle<CR>
-inoremap <F9> <Esc><Esc> :NERDTreeTabsToggle<CR>
+inoremap <F9> <Esc> <Esc> :NERDTreeTabsToggle<CR>
 nnoremap <F8> :confirm quit<CR>
-inoremap <F8> <Esc><Esc> :confirm quit <CR>
+inoremap <F8> <Esc> <Esc> :confirm quit <CR>
 set pastetoggle=<F7>
 " .............................................................................
 
 " -------------------------- Movement Key Maps --------------------------------
 "
-"  - + - + - + - + - + - + - + - +
+"  - + - + - + - + - NOTE - + - + - + - + -
 "
 " Set GNU-screen's screen-bindings :
 "
@@ -212,64 +274,57 @@ set pastetoggle=<F7>
 "      Alt-o Is a  End key
 "      Alt-h,j,k,l Are Cursor Left,Up,Down,Right
 "
-"  - + - + - + - + - + - + - + - +
+" + + + + + + + + + + + + + + + + + + + + +
 "
 " Move between window panes with Shift+{h,j,k,l}
-nmap <silent> <S-h> :wincmd h<CR>
-nmap <silent> <S-j> :wincmd j<CR>
-nmap <silent> <S-k> :wincmd k<CR>
-nmap <silent> <S-l> :wincmd l<CR>
+nnoremap <silent> <S-h> :wincmd h<CR>
+nnoremap <silent> <S-j> :wincmd j<CR>
+nnoremap <silent> <S-k> :wincmd k<CR>
+nnoremap <silent> <S-l> :wincmd l<CR>
 " previous - next Buffer
-nmap <silent> <S-y> :tabp<CR>
-nmap <silent> <S-o> :tabn<CR> 
-nmap <silent> <S-u> :bprevious<CR>
-nmap <silent> <S-i> :bnext<CR>
+nnoremap <silent> <S-u> :tabp<CR>
+nnoremap <silent> <S-i> :tabn<CR>
+nnoremap <silent> <S-b> :bprevious<CR>
+nnoremap <silent> <S-n> :bnext<CR>
 " Resize Window
-nmap <silent> <S-a> :vertical resize -5<cr>
-nmap <silent> <S-s> :resize +5<cr>
-nmap <silent> <S-d> :resize -5<cr>
-nmap <silent> <S-f> :vertical resize +5<cr>
+nnoremap <silent> <S-a> :vertical resize -5<cr>
+nnoremap <silent> <S-s> :resize +5<cr>
+nnoremap <silent> <S-d> :resize -5<cr>
+nnoremap <silent> <S-f> :vertical resize +5<cr>
+" .............................................................................
+
+" ------------------------ Window and Buffer Key Maps -------------------------
+"
+"nnoremap <silent> <S-w> :call JumpDrawMode()<CR>
+nnoremap <silent> <S-w> :call ScrollModeToggle()<CR>
+nnoremap <silent> <S-r> :bdelete<CR>
+nnoremap <silent> <Leader>w :update<CR>
+" Save - Ask to save Quit
+nnoremap <silent> <Leader>q :confirm quit <CR>
+nnoremap <silent> <Leader>u :undo<CR>
+nnoremap <silent> <Leader>r :redo<CR>
 " .............................................................................
 
 " ------------------------ File Processing Key Maps ---------------------------
 "
-" Save - Ask to save Quit
-nmap <leader>w :update<CR> 
-nmap <leader>q :confirm quit <CR>
-nmap <leader>u :undo<CR>
-nmap <leader>r :redo<CR>
 "
-nnoremap <leader>c :nohlsearch<CR>
+" Remove remove trailing spaces and tabs
+nnoremap <silent> <S-o> :%s/\s\+$//<cr>:let @/=''<cr>:nohlsearch<CR>
+nnoremap <silent> <Leader>o :%s/\s\+$//<cr>:let @/=''<cr>:nohlsearch<CR>
 "
-" Toggle Code Folding
-nnoremap <leader>f :call FoldColumnToggle()<cr>
+nnoremap <silent> <S-c> :nohlsearch
+nnoremap <silent> <Leader>c :nohlsearch<CR>
 "
-function! FoldColumnToggle()
-  if &foldenable 
-    setlocal nofoldenable 
-  else
-    setlocal foldenable 
-  endif
-endfunction
-" 
-" Remove remove trailling spaces and tabs
-nnoremap <leader>W :%s/\s\+$//<cr>:let @/=''<CR>
+nnoremap <silent> <S-x> :call SpellCheckToggle()<CR>
+nnoremap <silent> <Leader>x call SpellCheckToggle()<cr>
+nnoremap <silent> <S-z> z=
+nnoremap <silent> <Leader>z z=
 "
-" Append modeline after last line in buffer.
-function! AppendModeline()
-  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
-    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
-  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
-  call append(line("$"), l:modeline)
-endfunction
+nnoremap <silent> <S-y> :call FoldColumnToggle()<CR>
+nnoremap <silent> <Leader>f :call FoldColumnToggle()<cr>
+"
 nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
 "
-" Append Time Stamp and Update file
-function! TimeStampUpdate()
-  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
-    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
-  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
-  call append(line("$"), l:modeline)
-endfunction
+nnoremap <silent> <Leader>ts :call TimeStampUpdate()<CR>
 " .............................................................................
 
