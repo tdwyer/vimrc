@@ -13,9 +13,9 @@ runtime! archlinux.vim
 " If you prefer the old-style vim functionalty, add 'runtime! vimrc_example.vim'
 " Or better yet, read /usr/share/vim/vim74/vimrc_example.vim or the vim manual
 " and configure vim to your own liking!
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "
 "                         For Debian Systems
 "runtime! debian.vim
@@ -35,9 +35,9 @@ runtime! archlinux.vim
 "
 " apt-get install vim-nox
 "
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 source /usr/src/vim/bundle/vim-pathogen/autoload/pathogen.vim 
 "
 execute pathogen#infect('bundle/{}', '/usr/src/vim/bundle/{}')
@@ -47,34 +47,41 @@ execute pathogen#infect('bundle/{}', '/usr/src/vim/bundle/{}')
 "
 " Make sure this is set before any options are set
 " it is supose to effect what options do
-" Sensable also sets it
 set encoding=utf-8
 "
 "
 syntax on
 filetype plugin indent on
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "				Source the vimrc's for the loaded plugins
 "
 for rc in split(glob('/usr/src/vim/bundle/*/vimrc'), '\n')
     exe 'source' rc
 endfor
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "
 "				Now we source our system-wide zsh config
 "
 if filereadable("/etc/vim/vimrc.local")
 	source /etc/vim/vimrc.local
 endif
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"				Load the Help files for all loaded plugins
 "
-" index the help pages for the plugins, bad idea really
+"for docs in split(glob('/usr/src/vim/bundle/*/doc'), '\n')
+"    autocmd VimEnter helptags docs
+"endfor
+"
+" This dose not work for some reason
 "autocmd VimEnter Helptags
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"
+" This works
+autocmd VimEnter helptags /usr/src/vim/bundle/*/doc
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

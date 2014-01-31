@@ -84,87 +84,50 @@ if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
 endif
 " ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
 
-" ++++++++++++++++++++++++++++ Helper Functions +++++++++++++++++++++++++++++++
+" ============================== Scrolling ====================================
 "
-" Set Mode Independent Scroll variables
-function! SetScrollCommon()
+"  - + - + - + - + - NOTE - + - + - + - + -
+" help scroll When the cursor hits end of line or last line a beep is produced.
+" + + + + + + + + + + + + + + + + + + + + +
+"
+" Is Terminal Slow or Broken
+function! FastTermToggle()
+  if g:fastterm > 0
+    set ttyfast
+    set lazyredraw
+    set sidescrolloff=4
+    set scrolloff=8
+    set ttyscroll=64
+  else
     set ttyfast
     "set nottyfast
     set lazyredraw
-    set scrolloff=8
     set sidescrolloff=4
+    set scrolloff=12
+    set ttyscroll=1
+  endif
 endfunction
 "
 " Switch to Scrolling mode
 function! ScrollModeToggle()
   if g:scrollmode > 0
-    set scrolljump=-12
-    set ttyscroll=4
+    set scrolljump=-16
     let g:scrollmode = 0
   else
     set scrolljump=1
-    set ttyscroll=8
     let g:scrollmode = 1
   endif
 endfunction
 "
-" Toggle Spell check
-function! SpellCheckToggle()
-  if &spell
-    setlocal nospell
-  else
-    setlocal spell
-  endif
-endfunction
+" Default to Fast Term
+" Best way to speed up a slow term without disabling 256color or line wrapping
+" Large scrolloff
+" set scrolljump to a large percent instead of absolute number 16 percent is okay
+" set ttyscroll to 1 line to use term buffer redraw
 "
-" Toggle Code Folding
-function! FoldColumnToggle()
-  if &foldenable
-    setlocal nofoldenable
-  else
-    setlocal foldenable
-  endif
-endfunction
-"
-" Append modeline after last line in buffer.
-function! AppendModeline()
-  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
-    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
-  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
-  call append(line("$"), l:modeline)
-endfunction
-"
-" Append Time Stamp and Update file
-function! TimeStampUpdate()
-  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
-    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
-  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
-  call append(line("$"), l:modeline)
-endfunction
-" ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
-
-" ============================== Scrolling ====================================
-"
-"  - + - + - + - + - NOTE - + - + - + - + -
-"
-" :help scroll
-" -When the cursor is on the last line of the buffer nothing happens
-"  and a beep is produced.
-" That is reason gnu-screen will white when over-scrolling or line end is hit
-"
-" + + + + + + + + + + + + + + + + + + + + +
-"
-" ttyfast
-" Send more chars to the term instead of using lineupdate
-"
-" scrolljump=
-" if set to a neg number it is interrupted as a percent of visible # of lines
-"
-" ttyscroll=
-" Maximum number of lines to scroll before vim uses redrawing instead
-"
-call SetScrollCommon()
-" Set Default Scroll Mode 1 for JumpDraw 0 for Scroll
+let g:fastterm = 1
+call FastTermToggle()
+" Default to Jumping 16 percent of visible lines
 let g:scrollmode = 1
 call ScrollModeToggle()
 "
@@ -172,7 +135,7 @@ call ScrollModeToggle()
 
 " ============================= Show Settings =================================
 set laststatus=2
-set showtabline=1
+set showtabline=2
 " show matching bracket
 set showmatch
 set showcmd
@@ -231,19 +194,86 @@ set tabpagemax=50
 set ignorecase
 set smartcase
 set gdefault
-" Clean hi-lighting with the <silent> <Leader>c Key Map in - File Processing Key Maps -
 set hlsearch
 " incremental search - Start jumping around as you type. No fun at all
 "set incsearch
 " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 " =============================== Folding =====================================
+"
+" Toggle Code Folding
+function! FoldColumnToggle()
+  if &foldenable
+    setlocal nofoldenable
+  else
+    setlocal foldenable
+  endif
+endfunction
+"
 set nofoldenable
 set foldmethod=indent
 set foldnestmax=3
 " ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-" -------------------------- Function Key Maps --------------------------------
+" ++++++++++++++++++++++++++++ Helper Functions +++++++++++++++++++++++++++++++
+"
+" Toggle Spell check
+function! SpellCheckToggle()
+  if &spell
+    setlocal nospell
+  else
+    setlocal spell
+  endif
+endfunction
+"
+" Append modeline after last line in buffer.
+function! AppendModeline()
+  let l:modeline = printf(" vim: set ts=%d sw=%d tw=%d %set :",
+    \ &tabstop, &shiftwidth, &textwidth, &expandtab ? '' : 'no')
+  let l:modeline = substitute(&commentstring, "%s", l:modeline, "")
+  call append(line("$"), l:modeline)
+endfunction
+"
+" Remove Trailing White Space
+function! ClearTrailing()
+  :%s/\s\+$//
+  let @/=''
+  set nohlsearch
+endfunction
+" ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+
+" -------------------------- Movement Key Maps --------------------------------
+"
+"  - + - + - + - + - NOTE - + - + - + - + -
+"
+" Set movement key bindings in GNU screen to provide
+"
+"  - Global
+"  - Conflict free
+"  - Application Independent
+"  - Terminal Independent
+"  - Vim Mode Independent
+"
+"    Alt-y Is a Home Key
+"    Alt-u Is a PgUp Key
+"    Alt-i Is a PgDn Key
+"    Alt-o Is a  End key
+"    Alt-h,j,k,l Are Cursor Keys Left,Up,Down,Right
+"
+"  bindkey '^[y' stuff -k kh
+"  bindkey '^[u' stuff -k kN
+"  bindkey '^[i' stuff -k kP
+"  bindkey '^[o' stuff -k kH
+"  bindkey '^[h' stuff -k kl
+"  bindkey '^[j' stuff -k kd
+"  bindkey '^[k' stuff -k ku
+"  bindkey '^[l' stuff -k kr
+"
+" + + + + + + + + + + + + + + + + + + + + +
+"
+" .............................................................................
+
+" ------------------------ Function-Key Key Maps ------------------------------
 nnoremap <F12> :redo<CR>
 inoremap <F12> <Esc> <Esc> :redo<CR>
 nnoremap <F11> :update<CR>
@@ -252,79 +282,71 @@ nnoremap <F10> :undo<CR>
 inoremap <F10> <Esc> <Esc> :undo<CR>
 nnoremap <F9> :NERDTreeTabsToggle<CR>
 inoremap <F9> <Esc> <Esc> :NERDTreeTabsToggle<CR>
-nnoremap <F8> :confirm quit<CR>
-inoremap <F8> <Esc> <Esc> :confirm quit <CR>
+nnoremap <F8> :confirm :close<CR>
+inoremap <F8> <Esc> <Esc> :confirm :close<CR>
 set pastetoggle=<F7>
 " .............................................................................
 
-" -------------------------- Movement Key Maps --------------------------------
+" -------------------------- nnoremap Shift Maps ------------------------------
 "
-"  - + - + - + - + - NOTE - + - + - + - + -
-"
-" Set GNU-screen's screen-bindings :
-"
-"  - Global
-"  - Applicatoin Independent
-"  - Terminal Independent
-"  - Vim Mode Independent
-"
-"      Alt-y Is a Home Key
-"      Alt-u Is a PgUp Key
-"      Alt-i Is a PgDown Key
-"      Alt-o Is a  End key
-"      Alt-h,j,k,l Are Cursor Left,Up,Down,Right
-"
-" + + + + + + + + + + + + + + + + + + + + +
-"
-" Move between window panes with Shift+{h,j,k,l}
+nnoremap <silent> <S-a> z=
+nnoremap <silent> <S-b> :bprevious<CR>
+nnoremap <silent> <S-c> :nohlsearch<CR>
+nnoremap <silent> <S-d> :call ScrollModeToggle()<CR>
+nnoremap <silent> <S-e> :split<CR>
+nnoremap <silent> <S-f> :call FoldColumnToggle(<CR>
+"nnoremap <silent> <S-g> Move to the Top of buf: gg move to bottom of buf
 nnoremap <silent> <S-h> :wincmd h<CR>
+nnoremap <silent> <S-i> :tabn<CR>
 nnoremap <silent> <S-j> :wincmd j<CR>
 nnoremap <silent> <S-k> :wincmd k<CR>
 nnoremap <silent> <S-l> :wincmd l<CR>
-" previous - next Buffer
-nnoremap <silent> <S-u> :tabp<CR>
-nnoremap <silent> <S-i> :tabn<CR>
-nnoremap <silent> <S-b> :bprevious<CR>
+nnoremap <silent> <S-m> :enew<CR>
 nnoremap <silent> <S-n> :bnext<CR>
-" Resize Window
-nnoremap <silent> <S-a> :vertical resize -5<cr>
-nnoremap <silent> <S-s> :resize +5<cr>
-nnoremap <silent> <S-d> :resize -5<cr>
-nnoremap <silent> <S-f> :vertical resize +5<cr>
+" Note that there is a space at the end of help
+nnoremap <silent> <S-o> :help
+"nnoremap <silent> <S-p> Paste
+nnoremap <silent> <S-q> :confirm :tabclose<CR>
+nnoremap <silent> <S-r> :vsplit<CR>
+nnoremap <silent> <S-s> :call SpellCheckToggle()<CR>
+nnoremap <silent> <S-t> :tab new<CR>
+nnoremap <silent> <S-u> :tabp<CR>
+"nnoremap <silent> <S-v> Visual Select
+nnoremap <silent> <S-w> :confirm :bdelete<CR>
+nnoremap <silent> <S-x> <CR>
+nnoremap <silent> y :vert help<CR>
+nnoremap <silent> <S-y> :tab help<CR>
+nnoremap <silent> <S-z> :call ClearTrailing()<CR>
 " .............................................................................
 
-" ------------------------ Window and Buffer Key Maps -------------------------
-"
-"nnoremap <silent> <S-w> :call JumpDrawMode()<CR>
-nnoremap <silent> <S-w> :call ScrollModeToggle()<CR>
-nnoremap <silent> <S-r> :bdelete<CR>
-nnoremap <silent> <Leader>w :update<CR>
-" Save - Ask to save Quit
-nnoremap <silent> <Leader>q :confirm quit <CR>
-nnoremap <silent> <Leader>u :undo<CR>
-nnoremap <silent> <Leader>r :redo<CR>
-" .............................................................................
-
-" ------------------------ File Processing Key Maps ---------------------------
-"
+" ------------------------- nnoremap Leader Maps ------------------------------
 "
 " Remove remove trailing spaces and tabs
-nnoremap <silent> <S-o> :%s/\s\+$//<cr>:let @/=''<cr>:nohlsearch<CR>
-nnoremap <silent> <Leader>o :%s/\s\+$//<cr>:let @/=''<cr>:nohlsearch<CR>
-"
-nnoremap <silent> <S-c> :nohlsearch
+"nnoremap <silent> <Leader>a <CR>
+"nnoremap <silent> <Leader>b <CR>
 nnoremap <silent> <Leader>c :nohlsearch<CR>
-"
-nnoremap <silent> <S-x> :call SpellCheckToggle()<CR>
-nnoremap <silent> <Leader>x call SpellCheckToggle()<cr>
-nnoremap <silent> <S-z> z=
+"nnoremap <silent> <Leader>d <CR>
+"nnoremap <silent> <Leader>e <CR>
+nnoremap <silent> <Leader>f :call FoldColumnToggle()<CR>
+"nnoremap <silent> <Leader>g <CR>
+"nnoremap <silent> <Leader>h <CR>
+"nnoremap <silent> <Leader>i <CR>
+"nnoremap <silent> <Leader>j <CR>
+"nnoremap <silent> <Leader>k <CR>
+"nnoremap <silent> <Leader>l <CR>
+nnoremap <silent> <Leader>m :call AppendModeline()<CR>
+"nnoremap <silent> <Leader>n <CR>
+nnoremap <silent> <Leader>o :call ClearTrailing()<CR>
+"nnoremap <silent> <Leader>p <CR>
+nnoremap <silent> <Leader>q :confirm quit <CR>
+nnoremap <silent> <Leader>r :redo<CR>
+nnoremap <silent> <Leader>s :update<CR>
+"nnoremap <silent> <Leader>t <CR>
+nnoremap <silent> <Leader>u :undo<CR>
+"nnoremap <silent> <Leader>v <CR>
+"nnoremap <silent> <Leader>w <CR>
+nnoremap <silent> <Leader>x :call SpellCheckToggle()<CR>
+"nnoremap <silent> <Leader>y <CR>
 nnoremap <silent> <Leader>z z=
-"
-nnoremap <silent> <S-y> :call FoldColumnToggle()<CR>
-nnoremap <silent> <Leader>f :call FoldColumnToggle()<cr>
-"
-nnoremap <silent> <Leader>ml :call AppendModeline()<CR>
-"
-nnoremap <silent> <Leader>ts :call TimeStampUpdate()<CR>
 " .............................................................................
 
