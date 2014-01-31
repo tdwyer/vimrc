@@ -86,6 +86,5 @@ Usage
 
 If you want to completely remove a bundle.
 *Removing unwanted bundles will speed up git updates but it has no effect on Vim.*
-	cd /usr/src/vim
-	git submodule deinit src-bundle/nerdtree
+``git submodule deinit src-bundle/nerdtree``
 
