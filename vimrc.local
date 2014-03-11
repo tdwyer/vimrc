@@ -2,6 +2,7 @@
 
 " =============================== Vim ENV =====================================
 "
+set cursorline
 colo jellybeans
 "
 " If we have a 256color Term then use 256colors and disable BCE
@@ -204,9 +205,9 @@ set hlsearch
 " Toggle Code Folding
 function! FoldColumnToggle()
   if &foldenable
-    setlocal nofoldenable
+    set nofoldenable
   else
-    setlocal foldenable
+    set foldenable
   endif
 endfunction
 "
@@ -282,8 +283,8 @@ nnoremap <F10> :undo<CR>
 inoremap <F10> <Esc> <Esc> :undo<CR>
 nnoremap <F9> :NERDTreeTabsToggle<CR>
 inoremap <F9> <Esc> <Esc> :NERDTreeTabsToggle<CR>
-nnoremap <F8> :confirm :close<CR>
-inoremap <F8> <Esc> <Esc> :confirm :close<CR>
+nnoremap <F8> :confirm :quit<CR>
+inoremap <F8> <Esc> <Esc> :confirm :quit<CR>
 set pastetoggle=<F7>
 " .............................................................................
 
@@ -294,7 +295,7 @@ nnoremap <silent> <S-b> :bprevious<CR>
 nnoremap <silent> <S-c> :nohlsearch<CR>
 nnoremap <silent> <S-d> :call ScrollModeToggle()<CR>
 nnoremap <silent> <S-e> :split<CR>
-nnoremap <silent> <S-f> :call FoldColumnToggle(<CR>
+nnoremap <silent> <S-f> :call FoldColumnToggle()<CR>
 "nnoremap <silent> <S-g> Move to the Top of buf: gg move to bottom of buf
 nnoremap <silent> <S-h> :wincmd h<CR>
 nnoremap <silent> <S-i> :tabn<CR>
@@ -312,11 +313,19 @@ nnoremap <silent> <S-s> :call SpellCheckToggle()<CR>
 nnoremap <silent> <S-t> :tab new<CR>
 nnoremap <silent> <S-u> :tabp<CR>
 "nnoremap <silent> <S-v> Visual Select
-nnoremap <silent> <S-w> :confirm :bdelete<CR>
-nnoremap <silent> <S-x> <CR>
-nnoremap <silent> y :vert help<CR>
+nnoremap <silent> <S-w> :confirm :close<CR>
+nnoremap <silent> <S-x> :call ClearTrailing()<CR>:nohlsearch<CR>
+nnoremap <silent> <M-y> :vert help<CR>
 nnoremap <silent> <S-y> :tab help<CR>
-nnoremap <silent> <S-z> :call ClearTrailing()<CR>
+" Comment for Shell and Python
+vnoremap <silent> <S-z> :s/^/#/<CR>:nohlsearch<CR>
+vnoremap <silent> <-> :s/^#//<CR>:nohlsearch<CR>
+" Comment for vim
+vnoremap <silent> <S-'> :s/^/"/<CR>:nohlsearch<CR>
+vnoremap <silent> <M-'> :s/^"//<CR>:nohlsearch<CR>
+" Comment for Xconfigs
+vnoremap <silent> <S-'> :s/^/"/<CR>:nohlsearch<CR>
+vnoremap <silent> <M-'> :s/^"//<CR>:nohlsearch<CR>
 " .............................................................................
 
 " ------------------------- nnoremap Leader Maps ------------------------------
@@ -340,12 +349,12 @@ nnoremap <silent> <Leader>o :call ClearTrailing()<CR>
 "nnoremap <silent> <Leader>p <CR>
 nnoremap <silent> <Leader>q :confirm quit <CR>
 nnoremap <silent> <Leader>r :redo<CR>
-nnoremap <silent> <Leader>s :update<CR>
+nnoremap <silent> <Leader>s :call SpellCheckToggle()<CR>
 "nnoremap <silent> <Leader>t <CR>
 nnoremap <silent> <Leader>u :undo<CR>
 "nnoremap <silent> <Leader>v <CR>
 "nnoremap <silent> <Leader>w <CR>
-nnoremap <silent> <Leader>x :call SpellCheckToggle()<CR>
+"vnoremap <silent> <Leader>x :s/^#//<CR>
 "nnoremap <silent> <Leader>y <CR>
 nnoremap <silent> <Leader>z z=
 " .............................................................................
