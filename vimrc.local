@@ -317,21 +317,16 @@ nnoremap <silent> <S-w> :confirm :close<CR>
 nnoremap <silent> <S-x> :call ClearTrailing()<CR>:nohlsearch<CR>
 nnoremap <silent> <M-y> :vert help<CR>
 nnoremap <silent> <S-y> :tab help<CR>
-" Comment for Shell and Python
-vnoremap <silent> <S-z> :s/^/#/<CR>:nohlsearch<CR>
-vnoremap <silent> <-> :s/^#//<CR>:nohlsearch<CR>
-" Comment for vim
-vnoremap <silent> <S-'> :s/^/"/<CR>:nohlsearch<CR>
-vnoremap <silent> <M-'> :s/^"//<CR>:nohlsearch<CR>
-" Comment for Xconfigs
-vnoremap <silent> <S-'> :s/^/"/<CR>:nohlsearch<CR>
-vnoremap <silent> <M-'> :s/^"//<CR>:nohlsearch<CR>
+nnoremap <silent> <S-z> <CR>
+" Visual select lines of code and #Comment with Shift-Tab Uncomment with Tab
+vnoremap <silent> <Tab> :s/^#//<CR>:nohlsearch<CR>
+vnoremap <silent> <S-Tab> :s/^/#/<CR>:nohlsearch<CR>
 " .............................................................................
 
 " ------------------------- nnoremap Leader Maps ------------------------------
 "
 " Remove remove trailing spaces and tabs
-"nnoremap <silent> <Leader>a <CR>
+nnoremap <silent> <Leader>a z=
 "nnoremap <silent> <Leader>b <CR>
 nnoremap <silent> <Leader>c :nohlsearch<CR>
 "nnoremap <silent> <Leader>d <CR>
@@ -356,6 +351,6 @@ nnoremap <silent> <Leader>u :undo<CR>
 "nnoremap <silent> <Leader>w <CR>
 "vnoremap <silent> <Leader>x :s/^#//<CR>
 "nnoremap <silent> <Leader>y <CR>
-nnoremap <silent> <Leader>z z=
+"nnoremap <silent> <Leader>z <CR>
 " .............................................................................
 
