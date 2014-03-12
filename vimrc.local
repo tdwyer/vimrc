@@ -313,7 +313,7 @@ nnoremap <silent> <S-s> :call SpellCheckToggle()<CR>
 nnoremap <silent> <S-t> :tab new<CR>
 nnoremap <silent> <S-u> :tabp<CR>
 "nnoremap <silent> <S-v> Visual Select
-nnoremap <silent> <S-w> :confirm :close<CR>
+nnoremap <silent> <S-w> :split<CR>:bnext<CR>:wincmd j<CR>:confirm :bwipeout<CR>
 nnoremap <silent> <S-x> :call ClearTrailing()<CR>:nohlsearch<CR>
 nnoremap <silent> <M-y> :vert help<CR>
 nnoremap <silent> <S-y> :tab help<CR>
