@@ -2,6 +2,7 @@
 
 " =============================== Vim ENV =====================================
 "
+set cursorline
 colo jellybeans
 "
 " If we have a 256color Term then use 256colors and disable BCE
@@ -204,9 +205,9 @@ set hlsearch
 " Toggle Code Folding
 function! FoldColumnToggle()
   if &foldenable
-    setlocal nofoldenable
+    set nofoldenable
   else
-    setlocal foldenable
+    set foldenable
   endif
 endfunction
 "
@@ -238,6 +239,17 @@ endfunction
 function! ClearTrailing()
   :%s/\s\+$//
   let @/=''
+  set nohlsearch
+endfunction
+"
+" Keep It Simple Stupid - Block Commenting
+function! BlockComment()
+  :s/^/#/
+  set nohlsearch
+endfunction
+"
+function! BlockUnComment()
+  :s/^#//
   set nohlsearch
 endfunction
 " ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -282,8 +294,8 @@ nnoremap <F10> :undo<CR>
 inoremap <F10> <Esc> <Esc> :undo<CR>
 nnoremap <F9> :NERDTreeTabsToggle<CR>
 inoremap <F9> <Esc> <Esc> :NERDTreeTabsToggle<CR>
-nnoremap <F8> :confirm :close<CR>
-inoremap <F8> <Esc> <Esc> :confirm :close<CR>
+nnoremap <F8> :confirm :quit<CR>
+inoremap <F8> <Esc> <Esc> :confirm :quit<CR>
 set pastetoggle=<F7>
 " .............................................................................
 
@@ -293,8 +305,8 @@ nnoremap <silent> <S-a> z=
 nnoremap <silent> <S-b> :bprevious<CR>
 nnoremap <silent> <S-c> :nohlsearch<CR>
 nnoremap <silent> <S-d> :call ScrollModeToggle()<CR>
-nnoremap <silent> <S-e> :split<CR>
-nnoremap <silent> <S-f> :call FoldColumnToggle(<CR>
+nnoremap <silent> <S-e> :confirm :tabclose<CR>
+nnoremap <silent> <S-f> :call FoldColumnToggle()<CR>
 "nnoremap <silent> <S-g> Move to the Top of buf: gg move to bottom of buf
 nnoremap <silent> <S-h> :wincmd h<CR>
 nnoremap <silent> <S-i> :tabn<CR>
@@ -306,23 +318,25 @@ nnoremap <silent> <S-n> :bnext<CR>
 " Note that there is a space at the end of help
 nnoremap <silent> <S-o> :help
 "nnoremap <silent> <S-p> Paste
-nnoremap <silent> <S-q> :confirm :tabclose<CR>
+nnoremap <silent> <S-q> :split<CR>:bnext<CR>:wincmd j<CR>:confirm :bwipeout<CR>
 nnoremap <silent> <S-r> :vsplit<CR>
 nnoremap <silent> <S-s> :call SpellCheckToggle()<CR>
 nnoremap <silent> <S-t> :tab new<CR>
 nnoremap <silent> <S-u> :tabp<CR>
 "nnoremap <silent> <S-v> Visual Select
-nnoremap <silent> <S-w> :confirm :bdelete<CR>
-nnoremap <silent> <S-x> <CR>
-nnoremap <silent> y :vert help<CR>
-nnoremap <silent> <S-y> :tab help<CR>
-nnoremap <silent> <S-z> :call ClearTrailing()<CR>
+nnoremap <silent> <S-w> :confirm :close<CR>
+nnoremap <silent> <S-x> :vert help<CR>
+nnoremap <silent> <S-y> :call ClearTrailing()<CR>:nohlsearch<CR>
+nnoremap <silent> <S-z> :tab help<CR>
+" Visual select lines of code and #Comment with Shift-Tab Uncomment with Tab
+vnoremap <silent> <Tab> :call BlockComment()<CR>
+vnoremap <silent> <S-Tab> :call BlockUnComment()<CR>
 " .............................................................................
 
 " ------------------------- nnoremap Leader Maps ------------------------------
 "
 " Remove remove trailing spaces and tabs
-"nnoremap <silent> <Leader>a <CR>
+nnoremap <silent> <Leader>a z=
 "nnoremap <silent> <Leader>b <CR>
 nnoremap <silent> <Leader>c :nohlsearch<CR>
 "nnoremap <silent> <Leader>d <CR>
@@ -340,13 +354,13 @@ nnoremap <silent> <Leader>o :call ClearTrailing()<CR>
 "nnoremap <silent> <Leader>p <CR>
 nnoremap <silent> <Leader>q :confirm quit <CR>
 nnoremap <silent> <Leader>r :redo<CR>
-nnoremap <silent> <Leader>s :update<CR>
+nnoremap <silent> <Leader>s :call SpellCheckToggle()<CR>
 "nnoremap <silent> <Leader>t <CR>
 nnoremap <silent> <Leader>u :undo<CR>
 "nnoremap <silent> <Leader>v <CR>
 "nnoremap <silent> <Leader>w <CR>
-nnoremap <silent> <Leader>x :call SpellCheckToggle()<CR>
+"vnoremap <silent> <Leader>x :s/^#//<CR>
 "nnoremap <silent> <Leader>y <CR>
-nnoremap <silent> <Leader>z z=
+"nnoremap <silent> <Leader>z <CR>
 " .............................................................................
 
